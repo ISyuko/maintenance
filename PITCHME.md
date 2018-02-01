@@ -422,9 +422,9 @@
 		- 除外詳細品詞分類ワードを考慮
 	![代替テキスト](Wordcloud_2913167_ex1.png)
 	
-	- [このトピックの元](http://mamastar.jp/bbs/comment.do?topicId=2913167)
+	- [このトピック：一戸建てのメリットってあるの？](http://mamastar.jp/bbs/comment.do?topicId=2913167)
 	
-
+	![代替テキスト](Wordcloud_2913167_size_3.png)
 
 
 
