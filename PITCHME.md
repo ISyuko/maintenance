@@ -442,6 +442,7 @@
 
 	-![代替テキスト](Wordcloud_2905242_ex2.png)
 
+
 	<details><summary>ワード毎の頻度分布</summary>
 		<div>
 
