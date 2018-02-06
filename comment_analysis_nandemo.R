@@ -301,64 +301,107 @@ write.table(ng.res.3,"ngram_allcomment_husband",row.names=F,sep="\t",quote=F)
 #------------------------------------------------------------------
 # コロケーションの分析
 #------------------------------------------------------------------
-setwd("~/Documents/BBS_analysis/Format_data/ALL_merge")
+
+
+collocation_analysis <- function(test_word,type_var){
+  #--------------------------------------------------------------------------#
+  #引数で与えられたワードの共起語をT値の降順で算出する関数
+  #その際に与えられた文書ファイルのワードから、名詞、動詞、形容詞だけに絞る。
+  #名詞でも、非自立語、接尾、数(詞)、接続詞的、副詞可能は除外する
+  #引数１個目 test_word ：共起語を調べたい対象のワード
+  #引数2個目、T値なら1，MI値なら2
+  #使い方: response<- collocation_analysis("旦那",1)
+  #--------------------------------------------------------------------------#
+  
+  setwd("~/Documents/BBS_analysis/Format_data/ALL_merge")
+  col.result <- collocate("all_topic",node=test_word,span=5)
+  
+  #------------------------------------------------------------------
+  # コロケーションの分析(Tスコアによる共起度を測る)
+  #------------------------------------------------------------------
+  
+  #--共起語の分析結果を利用して、共起強度の指標（TスコアとMIスコア）
+  colscore.result <- collScores(col.result,node=test_word,span=5)
+  if(type_var == 1) {
+    #-- T値によるソート
+    #--コーパス言語学では、Tは1.65以上で、2つのタームの共起は偶然ではないと考える。
+    colscore.res.T<- colscore.result %>% dplyr::filter(T >= 1.65) %>% dplyr::arrange(desc(T)) 
+  } else if (type_var == 2){
+    colscore.res.T<- colscore.result %>% dplyr::filter(MI >= 1.58) %>% dplyr::arrange(desc(MI)) 
+  }
+  
+  #------------------------------------------------------------------
+  # 品詞を限定したコロケーション(共起度)の分析
+  #------------------------------------------------------------------
+  
+  file <- "all_topic" #--全てのトピックをマージしたファイル
+  #ドキュメントの形態素解析、品詞情報付きの結果(実行できる)
+  res <-RMeCabFreq(file)
+  
+  #--ここから、Info1が名詞、形容詞、動詞、を抽出する
+  res.subset <- res %>% dplyr::filter(Info1 %in% c("名詞","形容詞","動詞"))
+  #--非自立語を除く
+  res.subset <- res.subset %>% dplyr::filter(!(Info2 =="非自立"))
+  #--接尾を除く
+  res.subset <- res.subset %>% dplyr::filter(!(Info2 =="接尾"))
+  #--名詞のうち、数詞を除く
+  res.subset <- res.subset %>% dplyr::filter(!(Info2 =="数"))
+  #--名詞のうち、接続詞的　はどういうもの？確認した上で、省かないことにする。
+  #res.subset %>% dplyr::filter(Info2=="接続詞的") %>% head(30)
+  #--VSと、兼と、対しかない
+  #--副詞可能名詞は、除く
+  ## res.subset %>% dplyr::filter(Info2=="副詞可能") %>% head(30)
+  res.subset <- res.subset %>% dplyr::filter(!(Info2 == "副詞可能"))
+  
+  #--品詞カテゴリ毎頻度
+  ## res.subset %>% dplyr::group_by(Info1,Info2) %>% dplyr::summarise(count=sum(Freq))
+  
+  #--動詞非自立的な名詞とは？これは除かない
+  #res.subset %>% dplyr::filter(Info1=="名詞",Info2=="動詞非自立的") %>% head(20)
+  # 
+  # Term Info1        Info2 Freq
+  # 1     ごらん  名詞 動詞非自立的   14
+  # 2       ご覧  名詞 動詞非自立的    2
+  # 3       ちょ  名詞 動詞非自立的    9
+  # 4 ちょうだい  名詞 動詞非自立的    4
+  # 5       頂戴  名詞 動詞非自立的    2
+  
+  
+  #--特殊名詞とは？これも省かない
+  ## res.subset %>% dplyr::filter(Info1=="名詞",Info2=="特殊") %>% head(20)
+  # Term Info1 Info2 Freq
+  # 1   そ  名詞  特殊   37
+  # 2 そう  名詞  特殊   48
+  
+  #--以下の単語だけが、共起語を分析する対象となるワード word_listに格納する
+  word_list<-res.subset$Term
+  #--共起分析の結果から、分析対象となるワードだけを抽出
+  colscore.res.T.gentei<-colscore.res.T %>% dplyr::filter(Term %in% word_list)　
+  
+  if(type_var==1){
+    res.collocation<-colscore.res.T.gentei %>% dplyr::arrange(desc(T))
+  } else if (type_var==2){
+    res.collocation<-colscore.res.T.gentei %>% dplyr::arrange(desc(MI))
+  }
+  #T値とMI値の桁を少数点3桁にする。
+  
+  res.collocation$T <- round(res.collocation$T,3)
+  res.collocation$MI <- round(res.collocation$MI,3)
+  
+  return(res.collocation)
+}
 
 #--子供の例
-test_word <- "子供"
-col.result <- collocate("all_topic",node=test_word,span=5)
+#test_word <- "子供"
+#test_word<- "子ども"
+setwd("~/Documents/BBS_analysis/20180206")
 
-col.result %>% dplyr::arrange(desc(Span)) %>% head(50)
+#--関数を使って「旦那」の共起語を調べる
+collocation.res<-collocation_analysis("旦那",2)
 
-#------------------------------------------------------------------
-# コロケーションの分析(Tスコアによる共起度を測る)
-#------------------------------------------------------------------
+head(collocation.res)
 
-#--共起語の分析結果を利用して、共起強度の指標（TスコアとMIスコア）
-colscore.result <- collScores(col.result,node=test_word,span=5)
-#-- T値によるソート
-#--コーパス言語学では、Tは1.65以上で、2つのタームの共起は偶然ではないと考える。
-colscore.res.T<- colscore.result %>% dplyr::filter(T >= 1.65) %>% dplyr::arrange(desc(T)) 
-
-#--各タームの品詞を知りたい。
-#------------------------------------------------------------------
-# 品詞を限定したコロケーション(共起度)の分析
-#------------------------------------------------------------------
-
-#--1) テキストに品詞をつける。
-#setwd("~/Documents/BBS_analysis/Format_data/Nandemo")
-setwd("~/Documents/BBS_analysis/Format_data/ALL_merge")
-
-#file <-"topic_id_2905452" #--ベビーカー
-file <- "all_topic" #--全てのトピックをマージしたファイル
-#ドキュメントの形態素解析、品詞情報付きの結果(実行できる)
-res <-RMeCabFreq(file)
-#--
-#res2<-RMeCabText(file) #--これはエラーになり、どうしてもダメ
-#--ドキュメント
-
-#--ここから、Info1が名詞、形容詞、動詞、を抽出する
-res.subset <- res %>% dplyr::filter(Info1 %in% c("名詞","形容詞","動詞"))
-#--非自立語を除く
-res.subset <- res.subset %>% dplyr::filter(!(Info2 =="非自立"))
-#--接尾を除く
-res.subset <- res.subset %>% dplyr::filter(!(Info2 =="接尾"))
-#--名詞のうち、数詞を除く
-res.subset <- res.subset %>% dplyr::filter(!(Info2 =="数"))
-#--名詞のうち、接続詞的　はどういうもの？確認した上で、省かないことにする。
-res.subset %>% dplyr::filter(Info2=="接続詞的") %>% head(30)
-#--VSと、兼と、対しかない
-#--副詞可能名詞は、除く
-res.subset %>% dplyr::filter(Info2=="副詞可能") %>% head(30)
-res.subset <- res.subset %>% dplyr::filter(!(Info2 == "副詞可能"))
-
-#--以下の単語だけが、共起語を分析する対象となるワード
-word_list<-res.subset$Term
-colscore.res.T.gentei<-colscore.res.T %>% dplyr::filter(Term %in% word_list)　
-
-res.collocation.kodomo<-colscore.res.T.gentei %>% dplyr::arrange(desc(T))
-
-setwd("~/Documents/BBS_analysis/20180205")
-write.table(res.collocation.kodomo,"collocation_Tvalue_品詞限定.tsv",row.names=F,quote=F,sep="\t")
+write.table(collocation.res,"collocation_旦那_MI値.tsv",row.names=F,quote=F,sep="\t")
 dim(res.collocation.kodomo)
 
 
