@@ -413,7 +413,7 @@
 	
 	- ***このワードクラウドを任意のトピックを選んですぐに表示できるようにシステム化***
 	
-	- [このトピック：みんな夕飯なあに？](http://mamastar.jp/bbs/comment.do?topicId=2904249)
+	- [このトピック：みんな夕飯なあに？](http://mamastar.jp/bbs/comment.do?topicId=2904249){:target="_blank"}
 
 
 
@@ -424,7 +424,7 @@
 		
 	![代替テキスト](Wordcloud_2913167_ex1.png)
 	
-	- [このトピック：一戸建てのメリットってあるの？](http://mamastar.jp/bbs/comment.do?topicId=2913167)
+	- [このトピック：一戸建てのメリットってあるの？](http://mamastar.jp/bbs/comment.do?topicId=2913167){:target="_blank"}
 	
 	このアウトプットでは、圧倒的に頻度の高い2語「マンション」「一戸建て」以外はほとんど何が語られているか把握できない。そこを改善した例が以下。
 	
@@ -434,7 +434,7 @@
 		- 名詞のみ抽出
 		- 除外詳細品詞分類ワードを考慮
 
-	- [今日初めて見たわ、激混みのバスでベビーカーのまま乗ってる人](http://mamastar.jp/bbs/comment.do?topicId=2905452)
+	- [今日初めて見たわ、激混みのバスでベビーカーのまま乗ってる人](http://mamastar.jp/bbs/comment.do?topicId=2905452){:target="_blank"}
 
 	-![代替テキスト](Wordcloud_2905452_ex1.png)
 
