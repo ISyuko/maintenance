@@ -270,6 +270,10 @@ wordcloud2(wc_dfa,size=1.1,minSize=0)
 # N-gram(全てのトピックコメント)
 #------------------------------------------------------------------
 setwd("~/Documents/BBS_analysis/Format_data/ALL_merge")
+#document <- readLines("all_topic")
+
+
+
 #--単語2gramの抽出
 ngram.result <- Ngram("all_topic",type=1,pos=c("名詞","形容詞","動詞","副詞"))
 
@@ -396,7 +400,7 @@ collocation_analysis <- function(test_word,type_var){
 #test_word<- "子ども"
 setwd("~/Documents/BBS_analysis/20180206")
 
-#--関数を使って「旦那」の共起語を調べる
+#--関数を使って「旦那」の共起語を調べる.パラメータ1は、T値、2は、MI値
 collocation.res<-collocation_analysis("旦那",2)
 
 head(collocation.res)
@@ -407,6 +411,80 @@ dim(res.collocation.kodomo)
 
 #--「よね」は、形態素解析で分類されていない。結果となっている。
 res %>% dplyr::filter(str_detect(Term,"よね"))
+
+
+#----------------------------------------------------------------------
+# 単語の共起ネットワーク(co-occurrence network)の可視化
+#
+#----------------------------------------------------------------------
+library(igraph)
+# NgramDFによる共起語の集計
+setwd("~/Documents/BBS_analysis/Format_data/ALL_merge")
+# NgramDF関数 type=1は、ワード毎の共起
+#--名詞、動詞、形容詞だけにする
+#--前処理
+NgramDF.result <- NgramDF("all_topic",type =1, N=2, pos ="名詞") #このままだと落ちる。
+
+file <-"topic_id_2904249" #--今日の夕飯
+setwd("~/Documents/BBS_analysis/Format_data/Nandemo")
+
+NgramDF.result <- NgramDF(file,type=1, N=2, pos ="名詞") #これだとRは落ちない。
+
+#--共起度3以上のペアだけ抽出
+NgramDF.result.2<- NgramDF.result %>% dplyr::filter(Freq >=4) %>% dplyr::arrange(desc(Freq)) 
+
+dim(NgramDF.result.2)
+head(NgramDF.result.2)
+#--ネットワークの描画
+g<- graph.data.frame(NgramDF.result.2,directed=FALSE)
+plot(g,vertex.label=V(g)$name,vertex.color="gray")
+#----
+
+graph.df<-graph.data.frame(NgramDF.result.2) #ネットワークマップデータを作成
+
+E(graph.df)$weight <- NgramDF.result.2$Freq #共起の頻度を辺の重みとする
+
+#別なウィンドウでワードの共起関係をプロットする
+tkplot(graph.df, vertex.label=V(graph.df)$name,vertex.size=1,layout=layout.fruchterman.reingold,
+       edge.label=E(graph.df)$weight)
+
+#Rのウィンドウでネットワークグラフの表示
+plot(graph.df,vertex.label=V(graph.df)$name,vertex.color="gray",
+     edge.label=E(graph.df)$weight,vertex.size=1,
+     layout=layout.fruchterman.reingold)
+
+#--networkD3ライブラリを利用
+library(networkD3)
+# Data format: dataframe with 3 variables; variables 1 & 2 correspond to interactions; variable 3 is weight of interaction
+
+edgeList <- NgramDF.result.2
+colnames(edgeList) <- c("SourceName", "TargetName", "Weight")
+
+
+# グラフオブジェクトの生成
+# simplify関数を使い、重複エッジや、自己ループがないか確認する
+gD <- igraph::simplify(igraph::graph.data.frame(edgeList, directed=FALSE))
+
+# ノードリストオブジェクトを生成(実際にはデータフレームオブジェクト)
+# ノード間の情報を含んでいる
+# networkD3ライブラリは、IDsに0スタートを要求している
+#--IDとnNameというカラムのデータフレームを作成する。
+nodeList <- data.frame(ID = c(0:(igraph::vcount(gD) - 1)),
+                       nName = igraph::V(gD)$name)
+
+# Map node names from the edge list to node IDs
+getNodeID <- function(x){
+  which(x == igraph::V(gD)$name) - 1 # to ensure that IDs start at 0
+}
+# And add them to the edge list
+# 3つの変数を作り、その中身をfunction(x)で渡す。
+edgeList <- plyr::ddply(edgeList, .variables = c("SourceName", "TargetName", "Weight"), 
+                        function (x) data.frame(SourceID = getNodeID(x$SourceName), 
+                                                TargetID = getNodeID(x$TargetName)))
+
+
+#--ggplot2で描画
+library(ggplot2)
 
 #----------------------------------------------------------------------
 #１つのトピックだけでのワードクラウド
