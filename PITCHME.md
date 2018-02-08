@@ -2123,9 +2123,6 @@ MI値ではなく、T値をみたほうが意味があると考えられる </su
 
 - ネットワークグラフの可視化ライブラリを複数吟味した上で、networkD3を採択してみる。
 
-1. [今日の夕飯何？」のトピックの共起(Ngram)結果を可視化](./D3_LM.html)
-
-
-
+1. <a href="https://isyuko.github.io/maintenance/" target="_blank">今日の夕飯何？」のトピックの共起(Ngram)結果を可視化 </a>
 
 
