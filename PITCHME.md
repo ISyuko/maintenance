@@ -424,7 +424,7 @@
 		
 	![代替テキスト](Wordcloud_2913167_ex1.png)
 	
-	- [一戸建てのメリットってあるの？](http://mamastar.jp/bbs/comment.do?topicId=2913167){:target="_blank"} 
+	- [一戸建てのメリットってあるの？](http://mamastar.jp/bbs/comment.do?topicId=2913167)
 	
 	このアウトプットでは、圧倒的に頻度の高い2語「マンション」「一戸建て」以外はほとんど何が語られているか把握できない。そこを改善した例が以下。
 	
@@ -2123,6 +2123,6 @@ MI値ではなく、T値をみたほうが意味があると考えられる </su
 
 - ネットワークグラフの可視化ライブラリを複数吟味した上で、networkD3を採択してみる。
 
-1. <a href="https://isyuko.github.io/maintenance/" target="_blank">今日の夕飯何？」のトピックの共起(Ngram)結果を可視化 </a>
+1. [今日の夕飯何？」のトピックの共起(Ngram)結果を可視化](https://isyuko.github.io/maintenance)
 
 
