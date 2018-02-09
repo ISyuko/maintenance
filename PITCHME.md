@@ -424,7 +424,7 @@
 		
 	![代替テキスト](Wordcloud_2913167_ex1.png)
 	
-	- <a href ="http://mamastar.jp/bbs/comment.do?topicId=2913167" target="_blank"> [一戸建てのメリットってあるの？]</a>
+	- [一戸建てのメリットってあるの？](http://mamastar.jp/bbs/comment.do?topicId=2913167){:target="_blank"} 
 	
 	このアウトプットでは、圧倒的に頻度の高い2語「マンション」「一戸建て」以外はほとんど何が語られているか把握できない。そこを改善した例が以下。
 	
